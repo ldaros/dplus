@@ -1,12 +1,11 @@
 {
-  "name": "auth",
+  "name": "streaming",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.6.3"
+    "node-media-server": "^2.7.0"
   }
 }
