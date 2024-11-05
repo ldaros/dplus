@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stream Torrent Video</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .input-group {
+      margin-bottom: 15px;
+    }
+    input[type="text"] {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    video {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 20px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Stream Torrent via Magnet Link</h1>
+    
+    <div class="input-group">
+      <input type="text" id="magnet" placeholder="Enter magnet link">
+      <button id="streamButton">Stream</button>
+    </div>
+
+    <video id="video" controls></video>
+
+    <p id="statusMessage"></p>
+  </div>
+
+  <script>
+    const streamButton = document.getElementById('streamButton');
+    const magnetInput = document.getElementById('magnet');
+    const videoElement = document.getElementById('video');
+    const statusMessage = document.getElementById('statusMessage');
+
+    streamButton.addEventListener('click', function () {
+      const magnetLink = magnetInput.value;
+      if (!magnetLink) {
+        alert('Please enter a valid magnet link.');
+        return;
+      }
+
+      // Send the magnet link to the API
+      statusMessage.textContent = 'Loading stream...';
+      fetch(`/stream?magnet=${encodeURIComponent(magnetLink)}`)
+        .then(response => {
+          if (response.ok) {
+            return response.text(); // Return the m3u8 playlist link
+          } else {
+            throw new Error('Failed to stream the video.');
+          }
+        })
+        .then(hlsLink => {
+          // Use HLS.js to play the video
+          if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(hlsLink);
+            hls.attachMedia(videoElement);
+            videoElement.style.display = 'block';
+            statusMessage.textContent = '';
+          } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+            // For Safari support
+            videoElement.src = hlsLink;
+            videoElement.style.display = 'block';
+            statusMessage.textContent = '';
+          } else {
+            throw new Error('HLS not supported in this browser.');
+          }
+        })
+        .catch(error => {
+          statusMessage.textContent = `Error: ${error.message}`;
+        });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</body>
+</html>

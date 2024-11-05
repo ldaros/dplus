@@ -1,23 +1,23 @@
-# Use a lightweight Node.js image
-FROM node:18-alpine
+# Start with a base Go image
+FROM golang:1.23.1-alpine
 
-# Set the working directory
-WORKDIR /usr/src/app
+# Set the current working directory inside the container
+WORKDIR /app
 
-# Install pnpm globally
-RUN npm install -g pnpm
+# Copy the go.mod and go.sum files first (for dependency caching)
+COPY go.mod go.sum ./
 
-# Copy package.json and pnpm-lock.yaml
-COPY package.json pnpm-lock.yaml ./
+# Download dependencies
+RUN go mod download
 
-# Install dependencies using pnpm
-RUN pnpm install --frozen-lockfile
-
-# Copy the rest of your application code
+# Copy the source code into the container
 COPY . .
 
-# Expose the application port
-EXPOSE 3001 3002
+# Build the Go app
+RUN go build -o api
 
-# Command to run the application
-CMD ["node", "server.js"]
+# Expose port 3000
+EXPOSE 3000
+
+# Command to run the app
+CMD ["./api"]

@@ -278,13 +278,14 @@ export function PlayerPage() {
           return;
         }
 
-        const response = await fetch(`/api/contents/${id}`, {
+        const response = await fetch(`/api/catalog/${id}`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         const data = await response.json();
+
         setData(data);
       } catch (error) {
         console.error("Failed to fetch content:", error);
@@ -315,7 +316,7 @@ export function PlayerPage() {
 
   return (
     <Player
-      streamUrl={data?.streamingUrl}
+      streamUrl={"/api" + data?.streamUrl}
       title={data?.content?.title}
       onBack={() => navigate("/browse")}
     />

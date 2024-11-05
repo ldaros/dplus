@@ -11,15 +11,9 @@ export default defineConfig({
     },
   },
   server: {
-    port: 3000,
     proxy: {
-      "/api/streaming": {
-        target: "http://api:3002",
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/streaming/, ""),
-      },
       "/api": {
-        target: "http://api:3001",
+        target: "http://localhost:3000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },

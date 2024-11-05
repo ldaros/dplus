@@ -16,7 +16,7 @@ export function Login() {
     e.preventDefault();
     setLoading(true); // Set loading to true
 
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -31,7 +31,7 @@ export function BrowsePage() {
         return;
       }
 
-      const response = await fetch("/api/contents", {
+      const response = await fetch("/api/catalog", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -152,7 +152,7 @@ export function BrowsePage() {
             <span className="text-md font-semibold">
               {getFormatedDuration(contents[activeCarouselIndex].duration)}
             </span>
-            {contents[activeCarouselIndex].genre.map((tag, index) => (
+            {contents[activeCarouselIndex].tags.map((tag, index) => (
               <span
                 key={index}
                 className="bg-gray-800 text-white px-3 py-1 rounded-full text-sm"
@@ -168,7 +168,7 @@ export function BrowsePage() {
             <Button
               className="bg-white text-black hover:bg-gray-200 px-16 py-6 text-2xl"
               onClick={() => {
-                navigate(`/watch/${contents[activeCarouselIndex]._id}`);
+                navigate(`/watch/${contents[activeCarouselIndex].id}`);
               }}
             >
               {loadingPlay ? (

@@ -31,7 +31,7 @@ export function Search() {
         }
 
         const response = await fetch(
-          `/api/contents/search?q=${encodeURIComponent(query)}`,
+          `/api/search?q=${encodeURIComponent(query)}`,
           {
             method: "GET",
             headers: {
@@ -112,7 +112,7 @@ export function Search() {
   }, [selectedIndex]);
 
   const handleVideoSelect = (video: any) => {
-    navigate(`/watch/${video._id}`);
+    navigate(`/watch/${video.id}`);
   };
 
   return (

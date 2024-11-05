@@ -1,43 +1,41 @@
 version: "3.8"
 
 services:
+  db:
+    image: postgres:14.5
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
   api:
     build: ./api
     ports:
-      - "3001:3001"
-      - "3002:3002"
+      - "3000:3000"
     restart: always
     environment:
       - SECRET_KEY=${SECRET_KEY}
+      - POSTGRES_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?sslmode=disable
+    volumes:
+      - ./media:/app/media
     depends_on:
-      - mongodb
+      db:
+        condition: service_healthy
 
-  web-ui:
-    build: ./web-ui
-    ports:
-      - "3000:3000"
-
-  mongodb:
-    image: mongo:4.4
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    command:
-      [
-        "mongod",
-        "--logpath=/var/log/mongodb/mongod.log",
-        "--setParameter",
-        "logLevel=1",
-      ]
-  
-  db:
-    image: ghcr.io/tursodatabase/libsql-server:latest
-    ports:
-      - "8080:8080"
-    volumes:
-      - libsql-data:/var/lib/libsql
+  # web-ui:
+  #   build: ./web-ui
+  #   ports:
+  #     - "3000:3000"
 
 volumes:
-  mongo-data:
-  libsql-data:
+  db-data:
