@@ -1,0 +1,195 @@
+openapi: 3.0.0
+info:
+  title: Streaming API
+  version: 1.0.0
+  description: API for managing user authentication and catalog streaming.
+
+paths:
+  /auth/login:
+    post:
+      summary: User login
+      description: Authenticates a user and returns a JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      summary: User registration
+      description: Registers a new user with the provided details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Successful registration
+        '400':
+          description: Bad request
+
+  /catalog:
+    get:
+      summary: Get catalog items
+      description: Retrieves a list of catalog items. Requires authentication.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: A list of catalog items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogItemResponse'
+        '401':
+          description: Unauthorized
+
+  /catalog/{catalogItemId}:
+    get:
+      summary: Get streaming URL
+      description: Retrieves the streaming URL for a specific catalog item. Requires authentication.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: catalogItemId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The ID of the catalog item.
+      responses:
+        '200':
+          description: Streaming URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: The streaming URL
+        '401':
+          description: Unauthorized
+        '404':
+          description: Catalog item not found
+
+  /search:
+    get:
+      summary: Search catalog items
+      description: Searches catalog items by query. Requires authentication.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+          description: The search term.
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogItemResponse'
+        '401':
+          description: Unauthorized
+
+  /stream/{something}:
+    get:
+      summary: Stream media
+      description: Streams media content.
+      parameters:
+        - name: something
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Media identifier
+      responses:
+        '200':
+          description: Media stream
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        region:
+          type: string
+      required:
+        - name
+        - email
+        - password
+        - region
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    CatalogItemResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        releaseDate:
+          type: string
+          format: date
+        duration:
+          type: integer
+        posterUrl:
+          type: string
+        backdropUrl:
+          type: string
